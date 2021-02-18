@@ -6,7 +6,7 @@ import vk_api
 from pony.orm import db_session
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
-from models import UserState
+from models import UserState, Registration
 
 try:
     import settings
@@ -119,6 +119,7 @@ class Bot:
             else:
                 # finish scenario
                 log.info('Зарегистрирован: {name} {email}'.format(**state.context))
+                Registration(name=state.context['name'], email=state.context['email'])
                 state.delete()
         else:
             # retry current step
