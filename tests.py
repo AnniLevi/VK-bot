@@ -7,6 +7,7 @@ from vk_api.bot_longpoll import VkBotMessageEvent, VkBotEvent
 
 import settings
 from bot import Bot
+from generate_ticket import generate_ticket
 
 
 def isolate_db(test_func):
@@ -14,11 +15,12 @@ def isolate_db(test_func):
         with db_session:
             test_func(*args, **kwargs)
             rollback()
+
     return wrapper
 
 
 class Test1(TestCase):
-    RAW_EVENT= {
+    RAW_EVENT = {
         'type': 'message_new',
         'object': {'message': {'date': 1612549576, 'from_id': 34855643, 'id': 81, 'out': 0, 'peer_id': 34855643,
                                'text': 'hallo, bot!', 'conversation_message_id': 80, 'fwd_messages': [],
@@ -45,7 +47,6 @@ class Test1(TestCase):
                 bot.on_event.assert_called()
                 bot.on_event.assert_any_call(obj)
                 assert bot.on_event.call_count == count
-
 
     # def test_on_event(self):
     #     event = VkBotMessageEvent(raw=self.RAW_EVENT)
@@ -111,3 +112,9 @@ class Test1(TestCase):
             args, kwargs = call
             real_outputs.append(kwargs['message'])
         assert real_outputs == self.EXPECTED_OUTPUTS
+
+    def test_image_generation(self):
+        ticket_file = generate_ticket('Василий', 'email@email.ru')
+        with open('files/ticket_example.png', 'rb') as expected_file:
+            expected_bytes = expected_file.read()
+        assert ticket_file.read() == expected_bytes
